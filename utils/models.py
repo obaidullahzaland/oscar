@@ -1,6 +1,6 @@
 from torchvision import models, transforms
 import torch.nn as nn
-
+import torch
 
 def initialize_model(backbone, num_classes, pretrained=True):
     if backbone == 'resnet18':
@@ -34,3 +34,26 @@ def initialize_model(backbone, num_classes, pretrained=True):
     else:
         raise ValueError("Invalid backbone model name")
     return model
+
+
+# Define the model
+class ServerTune(nn.Module):
+    def __init__(self, classes=345):
+        super(ServerTune, self).__init__()
+        self.encoder = models.resnet18(pretrained=True)
+        self.encoder.fc = nn.Identity()
+        self.final_proj = nn.Sequential(
+            nn.Linear(512, classes)
+        )
+    
+    def forward(self, x, get_fea=False, input_image=True):
+        if input_image:
+            with torch.no_grad():  # Freeze encoder during forward pass
+                x = self.encoder(x)
+        
+        if get_fea:  # Return extracted features
+            return x.view(x.shape[0], -1)
+        
+        # Pass features to the final projection
+        out = self.final_proj(x.view(x.shape[0], -1))
+        return out

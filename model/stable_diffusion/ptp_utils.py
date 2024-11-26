@@ -149,7 +149,7 @@ def diffuse_reconstruction_step(model, latents, context, t, guidance_scale, low_
     return latents
 
 
-def latent2image(vae, latents,save_path=None):
+def latent2image(vae, latents, save_path=None, seed=None):
     latents = 1 / 0.18215 * latents
     image = vae.decode(latents)['sample']
     image = (image / 2 + 0.5).clamp(0, 1)
@@ -157,7 +157,8 @@ def latent2image(vae, latents,save_path=None):
     image = (image * 255).astype(np.uint8)
     image_pil = Image.fromarray(image[0])  # Assuming there's only one image in the batch
     if save_path:
-        image_pil.save(save_path + "image.png")
+        image_pil.save(save_path + "/image" + str(seed) + ".png")
+        print(f"Image saved to {save_path + '/image' + str(seed) + '.png'}")
     return image
 
 

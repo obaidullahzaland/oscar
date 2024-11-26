@@ -51,6 +51,7 @@ def text2image_ldm_stable(
     start_time=50,
     return_type='image',
     save_path = None,
+    seed=None
 ):
     batch_size = len(prompt)
     height = width = 512    
@@ -85,18 +86,13 @@ def text2image_ldm_stable(
             context = torch.cat([uncond_embeddings_, text_embeddings])
         latents = diffuse_reconstruction_step(model, latents, context=context, t=t, guidance_scale=GUIDANCE_SCALE, low_resource=False)
             
-        
+    print("save_path", save_path)
+    print("seed", seed)
     if return_type == 'image':
-        image = latent2image(model.vae, latents, save_path)
+        image = latent2image(model.vae, latents, save_path, seed)
     else:
         image = latents
     return image, latent, None
-
-
-
-def run_and_display(prompts=None, sub_category_embedding=None, sub_category=None, generator=None, latent=None, uncond_embeddings=None,image_encoded=None, save_path=None):
-    images, x_t, distortion_at_all_timesteps = text2image_ldm_stable(ldm_stable, prompts, sub_category_embedding=sub_category_embedding, sub_category=sub_category,latent=latent, num_inference_steps=NUM_DDIM_STEPS, guidance_scale=GUIDANCE_SCALE, generator=generator, uncond_embeddings=uncond_embeddings, start_time = NUM_DDIM_STEPS, save_path=save_path)
-    return images, x_t, distortion_at_all_timesteps
 
 
 print(f"Using {device}.")
@@ -107,7 +103,4 @@ def generate(standard_category=None, sub_category=None, sub_category_embedding=N
     image_enc = None  
     prompts = [standard_category]
     g_cpu = torch.Generator().manual_seed(seed)
-    image_inv, x_t, distortion_at_all_timesteps = run_and_display(prompts=prompts, sub_category_embedding=sub_category_embedding, sub_category=sub_category, generator=g_cpu, latent=x_t, uncond_embeddings=uncond_embeddings,image_encoded=image_enc, save_path=save_path)
-    #save the image
-    # plt.savefig(image_inv, save_path)
-    # return cross_attn_words_timesteps, distortion_at_all_timesteps
+    images, x_t, distortion_at_all_timesteps = text2image_ldm_stable(ldm_stable, prompts, sub_category_embedding=sub_category_embedding, sub_category=sub_category,latent=None, num_inference_steps=NUM_DDIM_STEPS, guidance_scale=GUIDANCE_SCALE, generator=g_cpu, uncond_embeddings=uncond_embeddings, start_time = NUM_DDIM_STEPS, save_path=save_path, seed=seed)
