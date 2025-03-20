@@ -5,8 +5,8 @@ from lavis.models import load_model_and_preprocess
 import argparse
 import h5py
 
-os.environ['TORCH_HOME'] = '/proj/cloudrobotics-nest/users/NICO++/torch_cache'
-os.environ['HF_HOME'] = '/proj/cloudrobotics-nest/users/x_obaza/huggingface_cache/'
+os.environ['TORCH_HOME'] = '/torch/cache'
+os.environ['HF_HOME'] = '/HF/home'
 parser = argparse.ArgumentParser()
 parser.add_argument("--root_dir", help="Root directory for files")
 args = parser.parse_args()
@@ -125,7 +125,5 @@ def read_captions(root_dir):
 
 if __name__ == "__main__":
     generate_captions_hdf5(args.root_dir)
-    # read_captions(args.root_dir)
 
-    # generate_and_save_captions_single_file(args.root_dir)
 
